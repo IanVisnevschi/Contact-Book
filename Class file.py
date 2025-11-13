@@ -57,4 +57,36 @@ class Node:
     
     def set_next(self,next_node):
         self.next_node = next_node
+
+
+#linked list class
+class LinkedList:
+    def __init__(self):
+        self.head = None
+
+    def add(self,data):
+        new_node = Node(data)
+        #if there is no head the node being added is going to be set as the head node of the linked list
+        if not self.head:
+            self.head=new_node
+        #if there is already a head the new node will be added on as the next node
+        else:
+            current = self.head 
+            while current.get_next():
+                current.set_next(new_node)
+    # puts all the data into a python list
+    def to_list(self):
+        result = []
+        current = self.head
+        while current:
+            result.append(current.get_data())
+            current = current.get_next()
+        return result
+    #prints all the information for testing 
+    def print_linkedlist(self):
+        current = self.head
+        while current:
+            print(current)
+            current = current.get_next()
     
+
