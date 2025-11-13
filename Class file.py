@@ -37,3 +37,24 @@ class Contact:
 
 
         )
+#node class
+class Node:
+    def __init__(self,data = None, next_node=None):
+        self.data=data
+        self.next_node = next_node
+
+    def __repr__(self):
+        return f"Node({self.data!r})"
+    
+    def get_data(self):
+        return self.data
+    
+    def set_data(self,value):
+        self.data = value
+
+    def get_next(self):
+        return self.next_node
+    
+    def set_next(self,next_node):
+        self.next_node = next_node
+    
