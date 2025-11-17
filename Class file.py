@@ -116,4 +116,31 @@ class Queue:
         return f"Queue({self.items})"
     
 
+class ContactManager:
+    def __init__(self):
+        self.contacts = LinkedList()
+        self.pending_actions = Queue()
+
+    def add_contact(self):
+        new_contact = Contact(
+            contact_id = str(uuid.uuid4()),
+            first_name = first_name,
+            last_name = last_name,
+            phone_number = phone,
+            email = email,
+            address = address
+
+        )
+
+        self.contacts.insert_end(new_contact)
+        return new_contact
+
+
+class MergeSort:
+    
+    def merge_sort(data, data_list):
+        if len(data)<=1:
+            return data
+        
+        mid  = len(data_list)//2
     
