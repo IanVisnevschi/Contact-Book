@@ -138,9 +138,31 @@ class ContactManager:
 
 class MergeSort:
     
-    def merge_sort(data, data_list):
-        if len(data)<=1:
-            return data
+    def merge_sort(data, data_list,key = lambda x: x):
+       #base case, if a list has 0 or 1 items it is already sorted so program will just return the list.
+        if len(data_list)<=1:
+            return data_list
         
-        mid  = len(data_list)//2
+        mid = len(data_list)//2
+        left_half = self.merge_sort(data_list[:mid],key)
+        right_half = self.merge_sort(data_list[mid:],key)
+
+        return self.merge(left_half,right_half,key)
     
+    def merge(self,left,right,key):
+        merged=[]
+        i=0
+        j=0
+
+        while i <len(left) and  j < len(right):
+            if key(left[i])<=key(right[j]):
+                merged.append(left[i])
+                i+=1
+            else:
+                merged.append(right[j])
+                j+=1
+        merged.extend(left[i:])
+        merged.extend(right[j:])
+        return merged
+
+       
