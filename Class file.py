@@ -89,4 +89,31 @@ class LinkedList:
             print(current)
             current = current.get_next()
     
+#queue class
+class Queue:
+    def __init__(self):
+        self.items = []
 
+    def enqueue(self,item):
+        self.items.append(item)
+
+    def dequeue(self):
+        if self.is_empty():
+            return None 
+        
+    def peek(self):
+        if self.is_empty(self):
+            return None 
+        return self.items[0]
+    
+    def is_empty(self):
+        return len(self.items) == 0 
+    #returns size of queue
+    def size(self):
+        return len(self.items)
+    
+    def __repr__(self):
+        return f"Queue({self.items})"
+    
+
+    
