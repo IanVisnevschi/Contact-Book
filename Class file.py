@@ -164,5 +164,30 @@ class MergeSort:
         merged.extend(left[i:])
         merged.extend(right[j:])
         return merged
+    
+class BinarySearch:
+    
+    @staticmethod
+    def search(contacts_list,key, attribute = "first_name"):
+        low = 0
+        high = len(contacts_list)-1
+
+        while low <=high:
+            mid = (low+high)//2
+            contact = contacts_list[mid]
+
+            value = getattr(contact, attribute)
+
+            if value == key:
+                return contact
+            
+            if value< key:
+                low = mid+1
+            else:
+                high = mid-1
+        # item not found
+        return None
+
+
 
        
