@@ -137,6 +137,56 @@ class ContactManager:
         self.contacts.insert_end(new_contact)
         return new_contact
     
+    def get_all_contacts(self):
+        return self.contacts.to_list()
+    
+    def search_contact(self,key,attribute = "first_name"):
+        contact_list = self.contacts.to_list()
+
+        #sorting the list using merge sort before applying binary search 
+
+        sorted_list = MergeSort.merge_sort(
+            contact_list,
+            key = lambda c: getattr(c, attribute)
+        )
+
+        return BinarySearch.search(
+            sorted_list,
+            key,
+            attribute = attribute
+        )
+    
+    def remove_contact(self, contact_id):
+        current = self.contacts.head
+        prev = None
+
+        while current:
+            if current.get_data().contact_id == contact_id:
+                if prev: # will remove from the middle
+                    prev.set_next(current.get_next())
+                else: # will remove the head
+                    self.contacts.head = current.get_next()
+                return True
+            
+            prev = current
+            current = current.get_next()
+        return False
+    
+    def update_contact(self, contact_id, **kwargs):
+        current = self.contacts.head
+
+        while current:
+            contact = current.get_data()
+            if contact.contact_id == contact_id:
+                for key, value in kwargs.items():
+                    if hasattr(contact,key):
+                        setattr(contact,key,value)
+                return contact
+            current = current.get_next()
+        return None
+    
+
+
 
 
 
@@ -194,6 +244,9 @@ class BinarySearch:
                 high = mid-1
         # item not found
         return None
+    
+
+    
 
 
 
