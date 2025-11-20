@@ -64,16 +64,17 @@ class LinkedList:
     def __init__(self):
         self.head = None
 
-    def add(self,data):
+    def insert_end(self,data):
         new_node = Node(data)
-        #if there is no head the node being added is going to be set as the head node of the linked list
         if not self.head:
-            self.head=new_node
-        #if there is already a head the new node will be added on as the next node
-        else:
-            current = self.head 
-            while current.get_next():
-                current.set_next(new_node)
+            self.head = new_node
+            return
+        
+        current = self.head
+        while current.get_next(): #moves through the list
+            current = current.get_next() 
+
+        current.set_next(new_node) # new nodes goes at the end
     # puts all the data into a python list
     def to_list(self):
         result = []
@@ -86,7 +87,7 @@ class LinkedList:
     def print_linkedlist(self):
         current = self.head
         while current:
-            print(current)
+            print(current.get_data())
             current = current.get_next()
     
 #queue class
@@ -99,17 +100,18 @@ class Queue:
 
     def dequeue(self):
         if self.is_empty():
-            return None 
+            return None
+        return self.items.pop(0)
         
     def peek(self):
-        if self.is_empty(self):
+        if self.is_empty():
             return None 
         return self.items[0]
     
     def is_empty(self):
         return len(self.items) == 0 
-    #returns size of queue
-    def size(self):
+    
+    def size(self):    #returns size of queue
         return len(self.items)
     
     def __repr__(self):
@@ -121,7 +123,7 @@ class ContactManager:
         self.contacts = LinkedList()
         self.pending_actions = Queue()
 
-    def add_contact(self):
+    def add_contact(self,first_name,last_name,phone,email,address):
         new_contact = Contact(
             contact_id = str(uuid.uuid4()),
             first_name = first_name,
@@ -134,22 +136,27 @@ class ContactManager:
 
         self.contacts.insert_end(new_contact)
         return new_contact
+    
+
 
 
 class MergeSort:
     
-    def merge_sort(data, data_list,key = lambda x: x):
+    @staticmethod
+    def merge_sort(data_list,key = lambda x: x):
        #base case, if a list has 0 or 1 items it is already sorted so program will just return the list.
         if len(data_list)<=1:
             return data_list
         
         mid = len(data_list)//2
-        left_half = self.merge_sort(data_list[:mid],key)
-        right_half = self.merge_sort(data_list[mid:],key)
+        left_half = MergeSort.merge_sort(data_list[:mid],key)
+        right_half = MergeSort.merge_sort(data_list[mid:],key)
 
-        return self.merge(left_half,right_half,key)
+        return MergeSort.merge(left_half,right_half,key)
     
-    def merge(self,left,right,key):
+    @staticmethod
+    
+    def merge(left,right,key):
         merged=[]
         i=0
         j=0
@@ -171,12 +178,12 @@ class BinarySearch:
     def search(contacts_list,key, attribute = "first_name"):
         low = 0
         high = len(contacts_list)-1
-
-        while low <=high:
+       
+        while low <=high:       #loop will keep going while there is a valid list range to search
             mid = (low+high)//2
             contact = contacts_list[mid]
-
-            value = getattr(contact, attribute)
+            
+            value = getattr(contact, attribute)     #extracts the attribute value to compare
 
             if value == key:
                 return contact
