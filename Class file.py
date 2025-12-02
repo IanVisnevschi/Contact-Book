@@ -1,6 +1,7 @@
 import uuid
 import tkinter as tk
 from tkinter import messagebox
+import json
 # Class that will define the persons in the contact book.
 class Contact:
     def __init__(self,contact_id,first_name,last_name,phone_number,email,address):
@@ -121,9 +122,27 @@ class Queue:
     
 
 class ContactManager:
-    def __init__(self):
+    def __init__(self,filename="contacts.json"):
         self.contacts = LinkedList()
         self.pending_actions = Queue()
+        self.filename = filename
+
+    def save_to_file(self):
+        data = [c.to_dict() for c in self.contacts.to_list()]
+        with open(self.filename,"w") as f:
+            json.dump(data,f,indent = 4)
+
+    def load_from_file(self):
+        try:
+            with open(self.filename,"r") as f:
+                data = json.load(f)
+            for item in data:
+                contact = Contact.from_dict(item)
+                self.contacts.insert_end(contact)
+        except FileNotFoundError:
+            pass #no file when running first time 
+
+
 
     def add_contact(self,first_name,last_name,phone,email,address):
         new_contact = Contact(
@@ -137,6 +156,8 @@ class ContactManager:
         )
 
         self.contacts.insert_end(new_contact)
+
+        self.save_to_file()
         return new_contact
     
     def get_all_contacts(self):
@@ -186,6 +207,15 @@ class ContactManager:
                 return contact
             current = current.get_next()
         return None
+    
+    def restore_deleted(self):
+        if self.pending_actions.is_empty():
+            return None
+        
+        contact = self.pending_actions.dequeue()
+        self.contacts.insert_end(contact)
+        self.save_to_file()
+        return contact
     
 
 
@@ -278,6 +308,7 @@ class ContactApp:
         tk.Button(root, text = "show all contacts", command = self.show_contacts).grid(row=5,column=1)
         tk.Button(root, text = "Search Contact", command = self.search_contact).grid(row=6, column =0)
         tk.Button(root, text = "Delete Contact", command = self.delete_contact).grid(row = 6, column = 1)
+        tk.Button(root,text = "Undo Delete", command = self.undo_delete).grid(row=6, column = 2)
 
         self.output = tk.Text(root, height =15, width=50)
         self.output.grid(row=7,column = 0, columnspan = 2, pady = 10)
@@ -299,6 +330,7 @@ class ContactApp:
         messagebox.showinfo("Success", "Contact Added")
         self.clear_entries()
 
+
     def show_contacts(self):
         self.output.delete("1.0",tk.END)
         contacts = self.manager.contacts.to_list()
@@ -313,7 +345,7 @@ class ContactApp:
     def search_contact(self):
         name = self.entry_first.get()
         if not name:
-            messagebox.showerror("Error, enter first name to search")
+            messagebox.showerror("Error", "enter first name to search")
             return
         
         contacts_list = self.manager.contacts.to_list()
@@ -338,16 +370,32 @@ class ContactApp:
 
         while current:
             if current.data.first_name == name:
+                self.manager.pending_actions.enqueue(current.data)
+
                 if prev is None:
                     self.manager.contacts.head = current.next_node
                    
                 else:
                      prev.next_node = current.next_node
+
+                self.manager.save_to_file()
                     
                 messagebox.showinfo("Deleted",f"Deleted{name}")
                 return
             prev = current
             current = current.next_node
+        messagebox.showinfo("Not Found", f"No contact with name{name}")
+
+    def undo_delete(self):
+        restored = self.manager.restore_deleted()
+
+        self.output.delete("1.0",tk.END)
+        if restored:
+            self.output.insert(tk.END, f"Restored: {restored}\n")
+        else:
+            self.output.insert(tk.END,"Nothing to undo.\n")
+        
+
 
     
     def clear_entries(self):
@@ -361,6 +409,7 @@ class ContactApp:
 if __name__ == "__main__":
     root = tk.Tk()
     manager = ContactManager()
+    manager.load_from_file()
     app = ContactApp(root, manager)
     root.mainloop()
 
