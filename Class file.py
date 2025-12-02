@@ -1,4 +1,6 @@
 import uuid
+import tkinter as tk
+from tkinter import messagebox
 # Class that will define the persons in the contact book.
 class Contact:
     def __init__(self,contact_id,first_name,last_name,phone_number,email,address):
@@ -244,6 +246,130 @@ class BinarySearch:
                 high = mid-1
         # item not found
         return None
+    
+
+class ContactApp:
+    def __init__(self,root,manager):
+        self.root = root
+        self.root.title("Contact Book")
+        self.manager = manager
+
+        #inputs for adding contacts
+        tk.Label(root, text = "First Name").grid(row=0,column=0)
+        tk.Label(root, text = "Last Name").grid(row=1, column=0)
+        tk.Label(root, text = "Phone").grid(row=2, column=0)
+        tk.Label(root, text  = "Email").grid(row = 3, column = 0)
+        tk.Label(root, text = "Address").grid(row = 4,column = 0)
+
+
+        self.entry_first = tk.Entry(root)
+        self.entry_last = tk.Entry(root)
+        self.entry_phone = tk.Entry(root)
+        self.entry_email = tk.Entry(root)
+        self.entry_address = tk.Entry(root)
+
+        self.entry_first.grid(row = 0, colum = 1)
+        self.entry_last.grid(row = 0, colum = 2)
+        self.entry_phone.grid(row = 0, colum = 3)
+        self.entry_email.grid(row = 0, colum = 4)
+        self.entry_address.grid(row = 0, colum = 5)
+
+        tk.Button(root, text = "Add Contact", command = self.add_contact).grid(row=5,column=0,pady=5)
+        tk.Button(root, text = "show all contacts", command = self.show_contacts).grid(row=5,column=1)
+        tk.Button(root, text = "Search Contact", command = self.search_contact).grid(row=6, column =0)
+        tk.Button(root, text = "Delete Contact", command = self.delete_contact).grid(row = 6 column = 1)
+
+        self.output = tk.Text(root, height =15, width=50)
+        self.output.grid(row=7,column = 0, columnspan = 2, pady = 10)
+
+
+
+    def add_contact(self):
+        first = self.entry_first.get()
+        last = self.entry_last.get()
+        phone = self.entry_phone.get()
+        email = self.entry_email.get()
+        address = self.entry_address.get()
+
+        if not first:
+            messagebox.showerror("Error", "first name is required")
+            return
+        
+        new_contact = self.manager.add_contact(first, last, phone, email, address)
+        messagebox.showinfo("Success", "Contact Added")
+        self.clear_entries()
+
+    def show_contacts(self):
+        self.output.delete("1.0",tk.END)
+        contacts = self.manager.contacts.to_list()
+
+        if not contacts:
+            self.output.insert(tk.END, "no contacts found.\n")
+            return
+        
+        for c in contacts:
+            self.output.insert(tk.END, f"{c}\n")
+
+    def search_contact(self):
+        name = self.entry_first.get()
+        if not name:
+            messagebox.showerror("Error, enter first name to search")
+            return
+        
+        contacts_list = self.manager.contacts.to_list()
+        sorted_contacts = MergeSort._merge_sort(contacts_list,key=lambda c: c.first_name)
+        result = BinarySearch.search(sorted_contacts, name, "first_name")
+
+        self.output.delete("1.0",tk.END)
+        if result:
+            self.output.insert(tk.END,f"FOUND: {result}\n")
+        else:
+            self.output.inser(tk.END,f"CONTACT NOT FOUND.\n")
+
+    
+    def delete_contact(self):
+        name = self.entry_first.get()
+        if not name:
+            messagebox.showerror("Error", "Enter FirstName to delete")
+            return
+        current = self.manager.contacts.head
+        prev = None
+        
+
+        while current:
+            if current.data.first_name == name:
+                if prev:
+                    prev.next_node = current.next_node
+                else:
+                    self.manager.contacts.head = current.next_node
+                    messagebox.showinfo("Deleted",f"Deleted{name}")
+                    return
+            prev = current
+            current = current.next_node
+
+    
+    def clear_entries(self):
+        self.entry_first.delete(0, tk.END)
+        self.entry_last.delete(0, tk.END)
+        self.entry_phone.delete(0, tk.END)
+        self.entry_email.delete(0, tk.END)
+        self.entry_address.delete(0, tk.END)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    manager = ContactManager()
+    app = ContactApp(root, manager)
+    root.mainloop()
+
+
+        
+
+
+
+
+
+        
     
 
     
