@@ -338,12 +338,14 @@ class ContactApp:
 
         while current:
             if current.data.first_name == name:
-                if prev:
-                    prev.next_node = current.next_node
-                else:
+                if prev is None:
                     self.manager.contacts.head = current.next_node
-                    messagebox.showinfo("Deleted",f"Deleted{name}")
-                    return
+                   
+                else:
+                     prev.next_node = current.next_node
+                    
+                messagebox.showinfo("Deleted",f"Deleted{name}")
+                return
             prev = current
             current = current.next_node
 
