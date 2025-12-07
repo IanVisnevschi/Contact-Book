@@ -163,21 +163,23 @@ class ContactManager:
     def get_all_contacts(self):
         return self.contacts.to_list()
     
-    def search_contact(self,key,attribute = "first_name"):
-        contact_list = self.contacts.to_list()
+    def search_contact(self, key, attribute="first_name"):
+        key = key.strip().lower()  # convert input to lowercase
 
-        #sorting the list using merge sort before applying binary search 
+        valid_attributes = ["first_name", "last_name", "phone_number", "email", "address"]
+        if attribute not in valid_attributes:
+            raise ValueError(f"Invalid attribute: {attribute}")
 
-        sorted_list = MergeSort.merge_sort(
-            contact_list,
-            key = lambda c: getattr(c, attribute)
-        )
+        contacts = self.contacts.to_list()
+    
+        sorted_contacts = MergeSort.merge_sort(contacts, key=lambda c: getattr(c, attribute).lower())
 
-        return BinarySearch.search(
-            sorted_list,
-            key,
-            attribute = attribute
-        )
+    
+        result = BinarySearch.search(sorted_contacts, key, attribute)
+        if result:
+            return [result]  
+        return []  
+
     
     def remove_contact(self, contact_id):
         current = self.contacts.head
@@ -226,7 +228,7 @@ class MergeSort:
     
     @staticmethod
     def merge_sort(data_list,key = lambda x: x):
-       #base case, if a list has 0 or 1 items it is already sorted so program will just return the list.
+    
         if len(data_list)<=1:
             return data_list
         
@@ -257,25 +259,25 @@ class MergeSort:
 class BinarySearch:
     
     @staticmethod
-    def search(contacts_list,key, attribute = "first_name"):
+    def search(contacts_list, key, attribute="first_name"):
+        key = key.lower()
         low = 0
-        high = len(contacts_list)-1
-       
-        while low <=high:       #loop will keep going while there is a valid list range to search
-            mid = (low+high)//2
+        high = len(contacts_list) - 1
+
+        while low <= high:
+            mid = (low + high) // 2
             contact = contacts_list[mid]
-            
-            value = getattr(contact, attribute)     #extracts the attribute value to compare
+            value = getattr(contact, attribute).lower()  # not case sensitive
 
             if value == key:
                 return contact
-            
-            if value< key:
-                low = mid+1
+            elif value < key:
+                low = mid + 1
             else:
-                high = mid-1
-        # item not found
+                high = mid - 1
+
         return None
+
     
 
 class ContactApp:
@@ -283,6 +285,11 @@ class ContactApp:
         self.root = root
         self.root.title("Contact Book")
         self.manager = manager
+        self.search_type = tk.StringVar(value="first_name")
+
+        tk.Label(root, text="Search By").grid(row=2, column=2)
+        tk.OptionMenu(root, self.search_type,"first_name", "last_name", "phone_number", "email", "address").grid(row=2, column=3)
+
 
         #inputs for adding contacts
         tk.Label(root, text = "First Name").grid(row=0,column=0)
@@ -343,20 +350,35 @@ class ContactApp:
             self.output.insert(tk.END, f"{c}\n")
 
     def search_contact(self):
-        name = self.entry_first.get()
-        if not name:
-            messagebox.showerror("Error", "enter first name to search")
-            return
-        
-        contacts_list = self.manager.contacts.to_list()
-        sorted_contacts = MergeSort.merge_sort(contacts_list,key=lambda c: c.first_name)
-        result = BinarySearch.search(sorted_contacts, name, "first_name")
-
-        self.output.delete("1.0",tk.END)
-        if result:
-            self.output.insert(tk.END,f"FOUND: {result}\n")
+        attribute = self.search_type.get()
+    
+        if attribute == "first_name":
+            key = self.entry_first.get().strip()
+        elif attribute == "last_name":
+            key = self.entry_last.get().strip()
+        elif attribute == "phone_number":
+            key = self.entry_phone.get().strip()
+        elif attribute == "email":
+            key = self.entry_email.get().strip()
+        elif attribute == "address":
+            key = self.entry_address.get().strip()
         else:
-            self.output.insert(tk.END,f"CONTACT NOT FOUND.\n")
+            messagebox.showerror("Error", "Invalid search type")
+            return
+        if not key:
+            messagebox.showerror("Error", f"Enter a value for {attribute.replace('_',' ').title()}")
+            return
+
+        results = self.manager.search_contact(key, attribute)
+        self.output.delete("1.0", tk.END)
+
+        if not results:
+            self.output.insert(tk.END, "CONTACT NOT FOUND.\n")
+            return
+
+        for r in results:
+            self.output.insert(tk.END, f"{r}\n")
+
 
     
     def delete_contact(self):
