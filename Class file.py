@@ -262,7 +262,7 @@ class BinarySearch:
         return None
 
     
-
+#tkinter user interface
 class ContactApp:
     def __init__(self,root,manager):
         self.root = root
@@ -375,27 +375,30 @@ class ContactApp:
 
         while current:
             if current.data.first_name == name:
-                self.manager.pending_actions.push(current.data)
+                self.manager.pending_actions.push(current.data) # pushes contact onto the pendng actions stack
 
-                if prev is None:
+                if prev is None: # first node
                     self.manager.contacts.head = current.next_node
                    
-                else:
+                else: # middle node
                      prev.next_node = current.next_node
 
                 self.manager.save_to_file()
                     
                 messagebox.showinfo("Deleted",f"Deleted{name}")
                 return
+            #moves the previous node and current node forward in the linked list to keep searching
             prev = current
             current = current.next_node
         messagebox.showinfo("Not Found", f"No contact with name{name}")
 
     def undo_delete(self):
+        #calls restore dleted function from contact manager 
         restored = self.manager.restore_deleted()
 
         self.output.delete("1.0",tk.END)
         if restored:
+            #if contact was restored it will be displayed
             self.output.insert(tk.END, f"Restored: {restored}\n")
         else:
             self.output.insert(tk.END,"Nothing to undo.\n")
