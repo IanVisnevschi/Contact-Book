@@ -12,6 +12,7 @@ class Contact:
         self.email = email
         self.address = address
     
+    #this is how the contact will be displayed
     def __str__(self):
         return f"{self.first_name} {self.last_name}, {self.phone_number}, {self.email}, {self.address}"
     
@@ -66,7 +67,7 @@ class Node:
 class LinkedList:
     def __init__(self):
         self.head = None
-
+#inserts a new node at the end of the list
     def insert_end(self,data):
         new_node = Node(data)
         if not self.head:
@@ -126,12 +127,12 @@ class ContactManager:
         self.contacts = LinkedList()
         self.pending_actions = Queue()
         self.filename = filename
-
+#saves all contacts to  file
     def save_to_file(self):
         data = [c.to_dict() for c in self.contacts.to_list()]
         with open(self.filename,"w") as f:
             json.dump(data,f,indent = 4)
-
+#load the contacts from file
     def load_from_file(self):
         try:
             with open(self.filename,"r") as f:
@@ -143,7 +144,7 @@ class ContactManager:
             pass #no file when running first time 
 
 
-
+#adds a ne contact
     def add_contact(self,first_name,last_name,phone,email,address):
         new_contact = Contact(
             contact_id = str(uuid.uuid4()),
@@ -160,27 +161,28 @@ class ContactManager:
         self.save_to_file()
         return new_contact
     
+    #returns all the contacts
     def get_all_contacts(self):
         return self.contacts.to_list()
-    
+    #searches for a contact using merge sort and then binary search
     def search_contact(self, key, attribute="first_name"):
         key = key.strip().lower()  # convert input to lowercase
-
+#this ensures users only search fields that actually exist
         valid_attributes = ["first_name", "last_name", "phone_number", "email", "address"]
         if attribute not in valid_attributes:
             raise ValueError(f"Invalid attribute: {attribute}")
 
-        contacts = self.contacts.to_list()
-    
+        contacts = self.contacts.to_list() # converts to python list
+#sorts contacts using the merge sort
         sorted_contacts = MergeSort.merge_sort(contacts, key=lambda c: getattr(c, attribute).lower())
 
-    
+    #searches for a contact using binary search
         result = BinarySearch.search(sorted_contacts, key, attribute)
         if result:
             return [result]  
         return []  
 
-    
+
     def remove_contact(self, contact_id):
         current = self.contacts.head
         prev = None
@@ -197,18 +199,6 @@ class ContactManager:
             current = current.get_next()
         return False
     
-    def update_contact(self, contact_id, **kwargs):
-        current = self.contacts.head
-
-        while current:
-            contact = current.get_data()
-            if contact.contact_id == contact_id:
-                for key, value in kwargs.items():
-                    if hasattr(contact,key):
-                        setattr(contact,key,value)
-                return contact
-            current = current.get_next()
-        return None
     
     def restore_deleted(self):
         if self.pending_actions.is_empty():
@@ -219,10 +209,6 @@ class ContactManager:
         self.save_to_file()
         return contact
     
-
-
-
-
 
 class MergeSort:
     
@@ -240,11 +226,12 @@ class MergeSort:
     
     @staticmethod
     
-    def merge(left,right,key):
+    def merge(left,right,key): 
         merged=[]
-        i=0
+        #assigns pointers
+        i=0 
         j=0
-
+        # compares the left and right elements
         while i <len(left) and  j < len(right):
             if key(left[i])<=key(right[j]):
                 merged.append(left[i])
@@ -260,13 +247,14 @@ class BinarySearch:
     
     @staticmethod
     def search(contacts_list, key, attribute="first_name"):
-        key = key.lower()
+        key = key.lower() # the value being
         low = 0
         high = len(contacts_list) - 1
 
         while low <= high:
             mid = (low + high) // 2
             contact = contacts_list[mid]
+            #gets value of searched attribute
             value = getattr(contact, attribute).lower()  # not case sensitive
 
             if value == key:
@@ -291,14 +279,14 @@ class ContactApp:
         tk.OptionMenu(root, self.search_type,"first_name", "last_name", "phone_number", "email", "address").grid(row=2, column=3)
 
 
-        #inputs for adding contacts
+        #Labels for adding contacts
         tk.Label(root, text = "First Name").grid(row=0,column=0)
         tk.Label(root, text = "Last Name").grid(row=1, column=0)
         tk.Label(root, text = "Phone").grid(row=2, column=0)
         tk.Label(root, text  = "Email").grid(row = 3, column = 0)
         tk.Label(root, text = "Address").grid(row = 4,column = 0)
 
-
+#entries
         self.entry_first = tk.Entry(root)
         self.entry_last = tk.Entry(root)
         self.entry_phone = tk.Entry(root)
@@ -310,7 +298,7 @@ class ContactApp:
         self.entry_phone.grid(row = 2, column = 1)
         self.entry_email.grid(row = 3, column = 1)
         self.entry_address.grid(row = 4, column = 1)
-
+#all the buttons
         tk.Button(root, text = "Add Contact", command = self.add_contact).grid(row=5,column=0,pady=5)
         tk.Button(root, text = "show all contacts", command = self.show_contacts).grid(row=5,column=1)
         tk.Button(root, text = "Search Contact", command = self.search_contact).grid(row=6, column =0)
@@ -339,7 +327,7 @@ class ContactApp:
 
 
     def show_contacts(self):
-        self.output.delete("1.0",tk.END)
+        self.output.delete("1.0",tk.END) # clears text box
         contacts = self.manager.contacts.to_list()
 
         if not contacts:
