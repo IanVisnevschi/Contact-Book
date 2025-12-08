@@ -93,39 +93,34 @@ class LinkedList:
         while current:
             print(current.get_data())
             current = current.get_next()
-    
-#queue class
-class Queue:
-    def __init__(self):
-        self.items = []
 
-    def enqueue(self,item):
+#stack class
+class Stack:
+    def __init__(self):
+        self.items =[]
+
+    def push(self,item):
         self.items.append(item)
 
-    def dequeue(self):
+    def pop(self):
         if self.is_empty():
             return None
-        return self.items.pop(0)
-        
+        return self.items.pop()
+    
     def peek(self):
         if self.is_empty():
-            return None 
-        return self.items[0]
+            return None
+        return self.items[-1]
     
     def is_empty(self):
-        return len(self.items) == 0 
-    
-    def size(self):    #returns size of queue
-        return len(self.items)
-    
-    def __repr__(self):
-        return f"Queue({self.items})"
+        return len(self.items) == 0
+
     
 
 class ContactManager:
     def __init__(self,filename="contacts.json"):
         self.contacts = LinkedList()
-        self.pending_actions = Queue()
+        self.pending_actions = Stack()
         self.filename = filename
 #saves all contacts to  file
     def save_to_file(self):
@@ -204,7 +199,7 @@ class ContactManager:
         if self.pending_actions.is_empty():
             return None
         
-        contact = self.pending_actions.dequeue()
+        contact = self.pending_actions.pop()
         self.contacts.insert_end(contact)
         self.save_to_file()
         return contact
@@ -380,7 +375,7 @@ class ContactApp:
 
         while current:
             if current.data.first_name == name:
-                self.manager.pending_actions.enqueue(current.data)
+                self.manager.pending_actions.push(current.data)
 
                 if prev is None:
                     self.manager.contacts.head = current.next_node
